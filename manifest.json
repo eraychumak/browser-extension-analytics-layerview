@@ -28,5 +28,8 @@
       "js": ["./src/forwarder.js"],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "icons": {
+   "128": "images/logo.png"
+ }
 }
