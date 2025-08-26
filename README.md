@@ -1,4 +1,3 @@
-
 # Analytics LayerView
 
 This Chrome extension helps QA testers and developers visualize and debug analytics dataLayer events in a side panel.
