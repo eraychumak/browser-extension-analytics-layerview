@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <title>Analytics LayerView</title>
+    <style>
+      /* Layout */
+      body {
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        margin: 0;
+        padding: 0 1em;
+        background: #fafbfc;
+      }
+
+      h1 {
+        font-size: 1.3em;
+        margin-top: 1em;
+      }
+
+      /* Filters */
+      #filters {
+        margin-bottom: 1em;
+      }
+      #filters label {
+        margin-right: 1em;
+      }
+
+
+      /* Events List */
+      #events {
+        margin: 1em 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      #events li .timestamp {
+        text-align: right;
+      }
+
+      #events li .codeblock {
+        background: #282c34;
+        padding: 1em;
+        max-width: 100%;
+        scrollbar-width: thin;
+        overflow-x: auto;
+        border-radius: .5em;
+      }
+
+    </style>
+    <link rel="stylesheet" href="dependencies/atom-one-dark.css">
+    <script src="dependencies/highlight.min.js"></script>
+  </head>
+  <body>
+    <div style="background: #e8f5e9; border-left: 4px solid #43a047; padding: 12px 16px; margin-top:24px; margin-bottom: 24px; color: #256029; font-size: 15px; border-radius: 6px;">
+      <strong>Tip:</strong> Use the filter to view specific event types. Reload the page to clear the captured events.
+    </div>
+    <div id="filters" style="margin-bottom: 24px;">
+      <label for="event-type-select">Event type:</label>
+      <select id="event-type-select">
+        <option value="all">All</option>
+      </select>
+    </div>
+    <h2 style="font-size: 18px; margin-bottom: 16px;">Captured Events</h2>
+    <ul id="events"></ul>
+    <script src="index.js"></script>
+  </body>
+</html>

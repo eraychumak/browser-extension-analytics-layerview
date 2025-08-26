@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Analytics LayerView",
+  "version": "0.1.0",
+  "description": "Visualize and debug analytics dataLayer events in a side panel for QA and development.",
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "sidePanel",
+    "webNavigation"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_title": "Click to open panel"
+  },
+  "side_panel": {
+    "default_path": "./src/side-panel/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./src/extractor.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./src/forwarder.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
