@@ -1,24 +1,35 @@
 /**
- * This script runs as a content script in the MAIN world (page context).
- * It intercepts calls to window.dataLayer.push and dispatches a CustomEvent
- * ('analytics-custom-data-layer') on the window with the event data.
- *
- * The event is picked up by event-forwarder.js, which relays it to the extension side.
+ * This content script runs in the MAIN execution world, sharing the
+ * DOM page context with the host site.
+ * 
+ * It uses the data-layer-helper depedency by Google to listen to the
+ * `dataLayer` object and dispatch new events to forwarder.js.
  */
-const originalPush = window.dataLayer.push;
 
-window.dataLayer.push = function(...args) {
-	console.groupCollapsed("[Extractor] Intercepted dataLayer.push");
-	console.log("Arguments:", args);
-	console.trace();
-	console.groupEnd();
+/**
+ * @param {Object} model The Abstract Data Model
+ * @param {Object} message The message pushed to the `dataLayer`
+ * 
+ * @see {@link https://github.com/google/data-layer-helper?tab=readme-ov-file#the-abstract-data-model}
+ */
+function listener(_, message) {
+	if (!message) {
+		return;
+	}
 
-	const interceptedEvent = new CustomEvent("analytics-custom-data-layer", {
-		detail: args,
+	// Message has been pushed. 
+	// The helper has merged it onto the model.
+	// Now use the message and the updated model to do something.
+	const newEvent = new CustomEvent("browser-extension-analytics-layer-view-new-event", {
+		detail: message
 	});
 
-	window.dispatchEvent(interceptedEvent);
-	console.log("[inject-relay.js] CustomEvent 'analytics-custom-data-layer' dispatched.", interceptedEvent);
+	window.dispatchEvent(newEvent);
+}
 
-	originalPush.apply(window.dataLayer, args);
-};
+if (window.dataLayer) {
+	new DataLayerHelper(dataLayer, {
+		listener,
+		listenToPast: true, // includes any events that have fired before the script is initialised
+	});
+}

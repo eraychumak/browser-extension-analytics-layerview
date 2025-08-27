@@ -43,7 +43,7 @@ const updateFilters = () => {
 };
 
 
-const renderEvents = (newEventIndex = 0) => {
+const renderEvents = () => {
   eventsList.innerHTML = '';
 
   const filtered = (currentFilter === 'all')
@@ -103,19 +103,23 @@ const addEvent = (ev) => {
   }
 };
 
+chrome.runtime.onConnect.addListener((port) => {
+  console.info("[Side Panel] Incoming connection:", port);
 
-chrome.runtime.onMessage.addListener((message) => {
-  if (!message || message?.type !== "analytics-custom-data-layer" || !message?.detail) {
+  if (port.name !== "AnalyticsLayerViewSidePanel") {
     return;
   }
 
-  const details = Array.isArray(message.detail) ? message.detail : [message.detail];
+  port.postMessage({
+    type: "data-layer-action",
+    action: "start-capture"
+  });
 
-  details.forEach(addEvent);
-
-  updateFilters();
-  // Pass 0 to highlight the newest event
-  renderEvents(0);
+  port.onMessage.addListener((msg) => {
+    addEvent(msg.detail);
+    updateFilters();
+    renderEvents();
+  });
 });
 
 const resetPanel = () => {

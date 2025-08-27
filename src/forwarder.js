@@ -1,20 +1,49 @@
 /**
- * event-forwarder.js
- *
- * This script runs as a content script in the extension context.
- * It listens for 'analytics-custom-data-layer' events dispatched by inject-relay.js
- * and forwards the event data to the extension (side panel) via chrome.runtime.sendMessage.
+ * This script runs in the ISOLATED execution world, unique to the
+ * browser extension.
+ * 
+ * It forwards any events received from extractor.js to the side panel.
  */
-(async () => {
-	window.addEventListener("analytics-custom-data-layer", async (event) => {
-		console.groupCollapsed("[event-forwarder.js] Received CustomEvent 'analytics-custom-data-layer'");
-		console.log("Event detail:", event.detail);
-		console.groupEnd();
-		try {
-			const response = await chrome.runtime.sendMessage({ type: "analytics-custom-data-layer", detail: event.detail });
-			console.log("[event-forwarder.js] Message sent to extension. Response:", response);
-		} catch (err) {
-			console.error("[event-forwarder.js] Error sending message:", err);
+
+function connectToSidePanel() {
+	console.debug("[Analytics LayerView Browser Extension] Attempting to connect to side panel");
+
+	const sidePanelPort = chrome.runtime.connect({
+		name: "AnalyticsLayerViewSidePanel"
+	});
+
+	const forwardNewEvent = (event) => {
+    const eventMessage = event.detail;
+
+    if (typeof eventMessage !== "object") {
+      return; // skip
+    }
+
+    if (!eventMessage?.event) {
+      return // skip
+    }
+
+		sidePanelPort.postMessage({
+			type: "data-layer-new-event",
+			detail: event.detail
+		});
+	};
+
+	sidePanelPort.onMessage.addListener((msg) => {
+		if (msg.type !== "data-layer-action") {
+			return;
+		}
+
+		if (msg.action === "start-capture") {
+			console.debug("[Analytics LayerView Browser Extension] Started capturing events.");
+			window.addEventListener("browser-extension-analytics-layer-view-new-event", forwardNewEvent);
 		}
 	});
-})();
+
+	sidePanelPort.onDisconnect.addListener(() => {
+		console.debug("[Analytics LayerView Browser Extension] [forwarder.js] Disconnected from side panel, stopped forwarding events.", chrome.runtime.lastError);
+		window.removeEventListener("browser-extension-analytics-layer-view-new-event", forwardNewEvent);
+	});
+}
+
+connectToSidePanel();
