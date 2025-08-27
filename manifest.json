@@ -4,12 +4,8 @@
   "version": "0.1.0",
   "description": "Visualize and debug analytics dataLayer events in a side panel for QA and development.",
   "permissions": [
-    "scripting",
     "sidePanel",
     "webNavigation"
-  ],
-  "host_permissions": [
-    "<all_urls>"
   ],
   "action": {
     "default_title": "Click to open panel"
