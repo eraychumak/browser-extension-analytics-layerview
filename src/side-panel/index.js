@@ -1,3 +1,5 @@
+const logPrefix = "[Analytics LayerView Browser Extension] [Side Panel]";
+
 /**
  * sidePanel/index.js
  *
@@ -104,7 +106,7 @@ const addEvent = (ev) => {
 };
 
 chrome.runtime.onConnect.addListener((port) => {
-  console.info("[Side Panel] Incoming connection:", port);
+  console.debug(logPrefix, "Incoming connection:", port);
 
   if (port.name !== "AnalyticsLayerViewSidePanel") {
     return;
@@ -134,7 +136,7 @@ const resetPanel = () => {
 
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error(error));
+  .catch((error) => console.error(logPrefix, error));
 
 chrome.webNavigation.onCommitted.addListener((e) => {
   if (e.transitionType === "reload") {

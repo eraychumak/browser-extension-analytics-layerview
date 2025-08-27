@@ -1,3 +1,5 @@
+const logPrefix = "[Analytics LayerView Browser Extension] [forwarder.js]";
+
 /**
  * This script runs in the ISOLATED execution world, unique to the
  * browser extension.
@@ -6,7 +8,7 @@
  */
 
 function connectToSidePanel() {
-	console.debug("[Analytics LayerView Browser Extension] Attempting to connect to side panel");
+	console.debug(logPrefix, "Attempting to connect to side panel");
 
 	const sidePanelPort = chrome.runtime.connect({
 		name: "AnalyticsLayerViewSidePanel"
@@ -35,13 +37,13 @@ function connectToSidePanel() {
 		}
 
 		if (msg.action === "start-capture") {
-			console.debug("[Analytics LayerView Browser Extension] Started capturing events.");
+			console.debug(logPrefix, "Started capturing events.");
 			window.addEventListener("browser-extension-analytics-layer-view-new-event", forwardNewEvent);
 		}
 	});
 
 	sidePanelPort.onDisconnect.addListener(() => {
-		console.debug("[Analytics LayerView Browser Extension] [forwarder.js] Disconnected from side panel, stopped forwarding events.", chrome.runtime.lastError);
+		console.debug(logPrefix, "Disconnected from side panel, stopped forwarding events.", chrome.runtime.lastError);
 		window.removeEventListener("browser-extension-analytics-layer-view-new-event", forwardNewEvent);
 	});
 }
